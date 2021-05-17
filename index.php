@@ -261,6 +261,8 @@ if (isset($_SESSION['auth']) AND $_SESSION['auth'] == TRUE) {
             //$prodRand = prodStartGen ($countProd, 7);
             //$dataGenCatSlice = array_slice($dataProd, $prodRand, 7);
 
+            if (!isset($dataGenCatSlice)) continue;
+
             //START вставка данных в таблицы продукты, в колонку similar_products
             $dataGenStr = '';
             foreach ($dataGenCatSlice as $value) {
