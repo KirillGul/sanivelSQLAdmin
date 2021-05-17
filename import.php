@@ -269,7 +269,7 @@ if (isset($_SESSION['auth']) AND $_SESSION['auth'] == TRUE) {
          $duplicates = array_diff_assoc($prodUrlArr, array_unique($prodUrlArr)); //массив дублей с ключями
          
          //for min optimaze START
-         $query = "INSERT INTO product (`uri`,`available`,`category_id`,`description`,`modified_time`,`name`,`oldprice`,`price`,`param`,`picture`,`produrl`,`vendor`,`vendorcode`) VALUES";
+         $query = "INSERT INTO product (`uri`,`available`,`category_id`,`category_sub_id`,`description`,`modified_time`,`name`,`oldprice`,`price`,`param`,`picture`,`produrl`,`vendor`,`vendorcode`) VALUES";
 
          foreach ($prodArr as $key => $value1) {
             ///УДАЛЯЕМ ДУБЛИ			
@@ -352,7 +352,7 @@ if (isset($_SESSION['auth']) AND $_SESSION['auth'] == TRUE) {
                vendorcode='$vendorcode'";*/
 
                //min optimaze
-               $query .= " ('$categoryUri/$countProdUniq','$available','$categoryId','$description','$modifiedtime','$name','$oldprice','$price','$param','$picture','$produrl','$vendor','$vendorcode'),";
+               $query .= " ('$categoryUri/$countProdUniq','$available','$categoryId','$subcategoryid','$description','$modifiedtime','$name','$oldprice','$price','$param','$picture','$produrl','$vendor','$vendorcode'),";
 
                /*echo "<pre>";
                var_dump($query);

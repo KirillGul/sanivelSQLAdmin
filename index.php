@@ -228,7 +228,7 @@ if (isset($_SESSION['auth']) AND $_SESSION['auth'] == TRUE) {
         $countProd = $_GET['countProd'];
 
         //выбрать id всех товаров нужной категории
-        $query = "SELECT id FROM product WHERE category_id='$genCatID'";
+        $query = "SELECT id, category_sub_id FROM product WHERE category_id='$genCatID'";
         $result = mysqli_query($link, $query) or die(mysqli_error($link));
         for ($dataProd = []; $row = mysqli_fetch_assoc($result); $dataProd[] = $row);
 
@@ -237,15 +237,34 @@ if (isset($_SESSION['auth']) AND $_SESSION['auth'] == TRUE) {
         $query = "INSERT INTO similar_products (`product_id`,`category_id`,`similar_products`) VALUES";
 
         foreach ($dataProd as $idValue) {
+
+            $tempArrProd = [];
+            foreach($dataProd as $val) {
+                if ($idValue['category_sub_id'] == $val['category_sub_id'] AND $idValue['id'] != $val['id'])
+                    $tempArrProd[] = $val['id'];
+            }
+
+            $intArr = count($tempArrProd);
+            
+            if ($intArr == 0) {
+                continue;
+            } elseif ($intArr == 1) {
+                $intArr = 7;
+                $dataGenCatSlice = $tempArrProd;
+            } elseif ($intArr > 7) {
+                $intArr = 7;
+                unset($dataGenCatSlice);
+                $dataGenCatSlice = array_rand(array_flip($tempArrProd), $intArr);
+            }
       
             //генерация от какого товара начинать LIMIT
-            $prodRand = prodStartGen ($countProd, 7);
-            $dataGenCatSlice = array_slice($dataProd, $prodRand, 7);
+            //$prodRand = prodStartGen ($countProd, 7);
+            //$dataGenCatSlice = array_slice($dataProd, $prodRand, 7);
 
             //START вставка данных в таблицы продукты, в колонку similar_products
             $dataGenStr = '';
-            foreach ($dataGenCatSlice as $val) {
-                $dataGenStr .= $val['id'].';';
+            foreach ($dataGenCatSlice as $value) {
+                $dataGenStr .= $value.';';
             }
             $idValue = $idValue['id'];
 
@@ -411,5 +430,5 @@ if (isset($_SESSION['auth']) AND $_SESSION['auth'] == TRUE) {
 }
 
 /*echo "<pre>";
-print_r($_COOKIE);
+print_r($tempArrProd);
 echo "</pre>";*/

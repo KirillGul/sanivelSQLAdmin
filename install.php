@@ -90,6 +90,7 @@ if (isset($_SESSION['auth']) AND $_SESSION['auth'] == TRUE) {
                 `uri` VARCHAR(256) NOT NULL,
                 `available` VARCHAR(256) NOT NULL,
                 `category_id` VARCHAR(256) NOT NULL,
+                `category_sub_id` VARCHAR(256) NULL DEFAULT NULL,
                 `description` TEXT NULL DEFAULT NULL,
                 `modified_time` VARCHAR(256) NULL DEFAULT NULL,
                 `name` VARCHAR(256) NOT NULL,
