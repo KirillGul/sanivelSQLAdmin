@@ -232,68 +232,56 @@ if (isset($_SESSION['auth']) AND $_SESSION['auth'] == TRUE) {
         $result = mysqli_query($link, $query) or die(mysqli_error($link));
         for ($dataProd = []; $row = mysqli_fetch_assoc($result); $dataProd[] = $row);
 
+
+        $dataProdPlus = [];
+        foreach ($dataProd as $idValue) {
+            if (isset($dataProdPlus[$idValue['category_sub_id']])) {
+                array_push($dataProdPlus[$idValue['category_sub_id']], $idValue['id']);
+            } else{
+                $dataProdPlus[$idValue['category_sub_id']] = [$idValue['id']];
+            }
+        }
+
         $start = microtime(true); //начало времени выполнения скрипта
 
         $query = "INSERT INTO similar_products (`product_id`,`category_id`,`similar_products`) VALUES";
 
-        $flag = 1;
-        $timeQuery = 300;
         foreach ($dataProd as $idValue) {
-
-            $tempArrProd = [];
-            foreach($dataProd as $val) {
-                if ($idValue['category_sub_id'] == $val['category_sub_id'] AND $idValue['id'] != $val['id'])
-                    $tempArrProd[] = $val['id'];
-            }
-
-            $intArr = count($tempArrProd);
+            $idValueID = $idValue['id'];
+            $idValueCategorySubID = $idValue['category_sub_id'];
             
-            if ($intArr == 0) {
-                continue;
-            } elseif ($intArr == 1) {
-                $intArr = 7;
-                $dataGenCatSlice = $tempArrProd;
-            } elseif ($intArr > 7) {
-                $intArr = 7;
-                unset($dataGenCatSlice);
-                $dataGenCatSlice = array_rand(array_flip($tempArrProd), $intArr);
+            if (isset($dataProdPlus[$idValueCategorySubID])) {
+                $tempArr = $dataProdPlus[$idValueCategorySubID];
+                $intArr = count($dataProdPlus[$idValueCategorySubID]);
+            
+                if ($intArr == 0) {
+                    continue;
+                } elseif ($intArr == 1) {
+                    $intArr = 7;
+                    $dataGenCatSlice = $tempArr;
+                } elseif ($intArr > 7) {
+                    shuffle($dataProdPlus[$idValueCategorySubID]);
+                    $intArr = 7;
+                    unset($dataGenCatSlice);
+                    $dataGenCatSlice = array_rand(array_flip($tempArr), $intArr);
+                }
+                
+                if (!isset($dataGenCatSlice)) {
+                    continue; //против ошибка если пустой
+                } else {
+                    //START вставка данных в таблицы продукты, в колонку similar_products
+                    $dataGenStr = '';
+                    foreach ($dataGenCatSlice as $value) {
+                        $dataGenStr .= $value.';';
+                    }
+                }
+
+                $query .= " ('$idValueID','$genCatID','$dataGenStr'),";
             }
       
             //генерация от какого товара начинать LIMIT
             //$prodRand = prodStartGen ($countProd, 7);
             //$dataGenCatSlice = array_slice($dataProd, $prodRand, 7);
-
-            if (!isset($dataGenCatSlice)) continue;
-
-            //START вставка данных в таблицы продукты, в колонку similar_products
-            $dataGenStr = '';
-            foreach ($dataGenCatSlice as $value) {
-                $dataGenStr .= $value.';';
-            }
-            $idValue = $idValue['id'];
-
-            if (round(microtime(true) - $start, 4) >= $timeQuery AND (round(microtime(true) - $start, 4)) <= $timeQuery+10) { //если импорт больше 5 мин.
-                $query = rtrim($query, ',');
-                mysqli_query($link, $query) or die(mysqli_error($link));
-
-                mysqli_close($link);
-                mysqli_connect($host, $user, $password);
-                $link = mysqli_connect($host, $user, $password);
-                if ($link) {
-                    mysqli_query($link, "CREATE DATABASE IF NOT EXISTS $db_name CHARACTER SET='utf8' COLLATE='utf8_general_ci'") or die(mysqli_error($link));
-                    mysqli_select_db($link, $db_name);
-                } else {
-                    die("Connection failed: " . mysqli_connect_error());
-                }
-                //mysqli_query($link, $query) or die(mysqli_error($link));
-                $query = "INSERT INTO similar_products (`product_id`,`category_id`,`similar_products`) VALUES";
-                //$flag = 0;
-                echo "$timeQuery";
-                $timeQuery += $timeQuery; //добавляем по 5 мин.
-            }
-
-            $query .= " ('$idValue','$genCatID','$dataGenStr'),";
-            //END вставка
         }
 
         $query = rtrim($query, ',');
