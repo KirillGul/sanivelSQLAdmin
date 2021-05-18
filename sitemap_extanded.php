@@ -45,6 +45,24 @@ function printTableSitemap ($rezultCat, $rezultProd) {
    </table>";
 }
 
+function recursiveRemoveDir($dir) {
+	$includes = glob($dir.'/{,.}*', GLOB_BRACE);
+	$systemDots = preg_grep('/\.+$/', $includes);
+
+	foreach ($systemDots as $index => $dot) {		
+		unset($includes[$index]);
+	}
+
+	foreach ($includes as $include) {
+		if(is_dir($include) && !is_link($include)) {
+			recursiveRemoveDir($include);
+		} else {
+			unlink($include);
+		}
+	}
+	rmdir($dir);
+}
+
 if (isset($_SESSION['auth']) AND $_SESSION['auth'] == TRUE) {
 
    /*ПОДГОТОВКА ПЕРЕМЕННЫХ*/
@@ -61,10 +79,10 @@ if (isset($_SESSION['auth']) AND $_SESSION['auth'] == TRUE) {
       /*ЛОГИКА*/
       if (isset($_POST['gen_sitemap'])) {
          
-         if (file_exists('map/sitemap.xml'))
-            rmdir ('map');
+         if (file_exists('map/sitemap.xml')) {
+            recursiveRemoveDir('map');
             mkdir('map');
-         //unlink('map/sitemap.xml');
+         }
 
          $f = fopen('map/sitemap.xml', 'w');
 

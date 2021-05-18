@@ -45,6 +45,24 @@ function printTableSitemap ($rezultCat, $rezultProd) {
    </table>";
 }
 
+function recursiveRemoveDir($dir) {
+	$includes = glob($dir.'/{,.}*', GLOB_BRACE);
+	$systemDots = preg_grep('/\.+$/', $includes);
+
+	foreach ($systemDots as $index => $dot) {		
+		unset($includes[$index]);
+	}
+
+	foreach ($includes as $include) {
+		if(is_dir($include) && !is_link($include)) {
+			recursiveRemoveDir($include);
+		} else {
+			unlink($include);
+		}
+	}
+	rmdir($dir);
+}
+
 if (isset($_SESSION['auth']) AND $_SESSION['auth'] == TRUE) {
 
    /*ПОДГОТОВКА ПЕРЕМЕННЫХ*/
@@ -61,10 +79,12 @@ if (isset($_SESSION['auth']) AND $_SESSION['auth'] == TRUE) {
       /*ЛОГИКА*/
       if (isset($_POST['gen_sitemap'])) {
          
-         if (file_exists('..//sitemap.xml'))
-            unlink('..//sitemap.xml');
+         if (file_exists('map/sitemap.xml')) {
+            recursiveRemoveDir('map');
+            mkdir('map');
+         }
 
-         $f = fopen('..//sitemap.xml', 'w');
+         $f = fopen('map/sitemap.xml', 'w');
 
          $xmlmap .= "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n";
          $xmlmap .= "<urlset xmlns=\"http://www.sitemaps.org/schemas/sitemap/0.9\">\n";
@@ -91,8 +111,8 @@ if (isset($_SESSION['auth']) AND $_SESSION['auth'] == TRUE) {
                   $xmlmap .= "     <loc>$prefhostHTTP$hostHTTP/$catURI/</loc>\n";
                   $date = date('Y-m-d', time()); 
                   $xmlmap .= "     <lastmod>$date</lastmod>\n";
-                  $xmlmap .= "     <changefreq>monthly</changefreq>\n";
-                  $xmlmap .= "     <priority>0.9</priority>\n";
+                  $xmlmap .= "     <changefreq>daily</changefreq>\n";
+                  $xmlmap .= "     <priority>0.8</priority>\n";
                   $xmlmap .= "  </url>\n";
 
                   if (isset($_POST['check_product'])) {
@@ -113,8 +133,7 @@ if (isset($_SESSION['auth']) AND $_SESSION['auth'] == TRUE) {
                            if (!empty($dateProd)) {
                               $xmlmap .= "     <lastmod>$dateProd</lastmod>\n";
                            }
-                           $xmlmap .= "     <changefreq>monthly</changefreq>\n";
-                           $xmlmap .= "     <priority>0.7</priority>\n";
+                           $xmlmap .= "     <changefreq>daily</changefreq>\n";
                            $xmlmap .= "  </url>\n";
                         }
                      }
@@ -140,5 +159,5 @@ if (isset($_SESSION['auth']) AND $_SESSION['auth'] == TRUE) {
       print "</pre>";*/
    
    } else {
-      header('Location: /admin/login.php'); die();
+      header('Location: login.php'); die();
    }
