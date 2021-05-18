@@ -1,7 +1,7 @@
 <?php
 set_time_limit(0); //время выполнения скрипта в сек. (0-бесконечно)
 
-include '../elems//init.php';
+include 'init.php';
 
 /*УСТАНОВКА ЗНАЧЕНИЙ МАССИВА $_COOKIE*/
 if (isset($_POST['check_category'])) $rezultCat = $_POST['check_category'].'';

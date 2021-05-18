@@ -236,6 +236,8 @@ if (isset($_SESSION['auth']) AND $_SESSION['auth'] == TRUE) {
 
         $query = "INSERT INTO similar_products (`product_id`,`category_id`,`similar_products`) VALUES";
 
+        $flag = 1;
+        $timeQuery = 300;
         foreach ($dataProd as $idValue) {
 
             $tempArrProd = [];
@@ -269,6 +271,14 @@ if (isset($_SESSION['auth']) AND $_SESSION['auth'] == TRUE) {
                 $dataGenStr .= $value.';';
             }
             $idValue = $idValue['id'];
+
+            if (round(microtime(true) - $start, 4) >= $timeQuery AND (round(microtime(true) - $start, 4)) <= $timeQuery+50) { //если импорт больше 5 мин.
+                $query = rtrim($query, ',');
+                mysqli_query($link, $query) or die(mysqli_error($link));
+                $query = "INSERT INTO similar_products (`product_id`,`category_id`,`similar_products`) VALUES";
+                //$flag = 0;
+                $timeQuery += $timeQuery; //добавляем по 5 мин.
+            }
 
             $query .= " ('$idValue','$genCatID','$dataGenStr'),";
             //END вставка
