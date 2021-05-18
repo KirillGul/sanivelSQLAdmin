@@ -272,11 +272,23 @@ if (isset($_SESSION['auth']) AND $_SESSION['auth'] == TRUE) {
             }
             $idValue = $idValue['id'];
 
-            if (round(microtime(true) - $start, 4) >= $timeQuery AND (round(microtime(true) - $start, 4)) <= $timeQuery+50) { //если импорт больше 5 мин.
+            if (round(microtime(true) - $start, 4) >= $timeQuery AND (round(microtime(true) - $start, 4)) <= $timeQuery+10) { //если импорт больше 5 мин.
                 $query = rtrim($query, ',');
                 mysqli_query($link, $query) or die(mysqli_error($link));
+
+                mysqli_close($link);
+                mysqli_connect($host, $user, $password);
+                $link = mysqli_connect($host, $user, $password);
+                if ($link) {
+                    mysqli_query($link, "CREATE DATABASE IF NOT EXISTS $db_name CHARACTER SET='utf8' COLLATE='utf8_general_ci'") or die(mysqli_error($link));
+                    mysqli_select_db($link, $db_name);
+                } else {
+                    die("Connection failed: " . mysqli_connect_error());
+                }
+                //mysqli_query($link, $query) or die(mysqli_error($link));
                 $query = "INSERT INTO similar_products (`product_id`,`category_id`,`similar_products`) VALUES";
                 //$flag = 0;
+                echo "$timeQuery";
                 $timeQuery += $timeQuery; //добавляем по 5 мин.
             }
 
