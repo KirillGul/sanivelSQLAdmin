@@ -234,8 +234,12 @@ if (isset($_SESSION['auth']) AND $_SESSION['auth'] == TRUE) {
                   if ($reader->name == "offer" && $reader->nodeType == XMLReader::END_ELEMENT) break;					
                }
                
-               $prodSubCategoryName = $cat["$prodSubCategoryId"].""; //добавляем имя категории
-               $prodSubCategoryName = str_replace(array("'"), "\'", $prodSubCategoryName);
+               if(isset($cat["$prodSubCategoryId"])) {
+                  $prodSubCategoryName = $cat["$prodSubCategoryId"].""; //добавляем имя категории
+                  $prodSubCategoryName = str_replace(array("'"), "\'", $prodSubCategoryName);
+               } else {
+                  $prodSubCategoryName = ""; //добавляем имя категории
+               }               
 
                $prod = [
                   'available'=>$prodAvailable,

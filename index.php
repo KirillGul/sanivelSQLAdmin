@@ -232,7 +232,7 @@ if (isset($_SESSION['auth']) AND $_SESSION['auth'] == TRUE) {
         $result = mysqli_query($link, $query) or die(mysqli_error($link));
         for ($dataProd = []; $row = mysqli_fetch_assoc($result); $dataProd[] = $row);
 
-
+        //подготовка под массива
         $dataProdPlus = [];
         foreach ($dataProd as $idValue) {
             if (isset($dataProdPlus[$idValue['category_sub_id']])) {
@@ -253,7 +253,7 @@ if (isset($_SESSION['auth']) AND $_SESSION['auth'] == TRUE) {
             if (isset($dataProdPlus[$idValueCategorySubID])) {
                 $tempArr = $dataProdPlus[$idValueCategorySubID];
                 $intArr = count($dataProdPlus[$idValueCategorySubID]);
-            
+         
                 if ($intArr == 0) {
                     continue;
                 } elseif ($intArr == 1) {
@@ -262,6 +262,10 @@ if (isset($_SESSION['auth']) AND $_SESSION['auth'] == TRUE) {
                 } elseif ($intArr > 7) {
                     shuffle($dataProdPlus[$idValueCategorySubID]);
                     $intArr = 7;
+                    unset($dataGenCatSlice);
+                    $dataGenCatSlice = array_rand(array_flip($tempArr), $intArr);
+                } else {
+                    shuffle($dataProdPlus[$idValueCategorySubID]);
                     unset($dataGenCatSlice);
                     $dataGenCatSlice = array_rand(array_flip($tempArr), $intArr);
                 }
